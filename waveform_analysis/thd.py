@@ -1,11 +1,11 @@
-from scipy.signal.windows import _cos_win
+﻿from scipy.signal.windows import _cos_win
 from scipy.fftpack import next_fast_len
 from numpy.fft import rfft, irfft
 from numpy import argmax, mean, log, concatenate, zeros
 import numpy as np
 from waveform_analysis._common import rms_flat, parabolic
 from waveform_analysis import A_weight
-
+from matplotlib.pyplot import *
 
 # This requires accurately measuring frequency component amplitudes, so use a
 # flat-top window (https://holometer.fnal.gov/GH_FFT.pdf)
@@ -62,6 +62,7 @@ def THDN(signal, fs, weight=None):
 
     window = _cos_win(len(signal), flattops['HFT248D'])
     windowed = signal * window
+    #figure(1);plot(signal);plot(windowed); show()
     del signal
 
     # Zero pad to nearest power of two
@@ -72,13 +73,15 @@ def THDN(signal, fs, weight=None):
     total_rms = rms_flat(windowed)
 
     # Find the peak of the frequency spectrum (fundamental frequency)
-    f = rfft(windowed)
+    f = rfft(windowed); figure(2); #plot(abs(f));show()
     i = argmax(abs(f))
     true_i = parabolic(log(abs(f)), i)[0]
     frequency = fs * (true_i / len(windowed))
 
     # Filter out fundamental by throwing away values ±10%
+    #lowermin = i - 10 #miaofng, according to window function
     lowermin = int(true_i * 0.9)
+    #uppermin = i + 10 #miaofng, according to window function
     uppermin = int(true_i * 1.1)
     f[lowermin: uppermin] = 0
     # TODO: Zeroing FFT bins is bad
@@ -99,8 +102,11 @@ def THDN(signal, fs, weight=None):
         raise ValueError('Weighting not understood')
 
     # TODO: Return a dict or list of frequency, THD+N?
-    return rms_flat(noise) / total_rms
-
+    thdn = rms_flat(noise) / total_rms
+    vrms = total_rms * ((1 - (thdn ** 2)) ** 0.5)
+    rms_window = rms_flat(window)
+    vrms = vrms / rms_window
+    return frequency, vrms, thdn
 
 def THD(signal, fs):
     """Measure the THD for a signal
@@ -138,7 +144,8 @@ def THD(signal, fs):
     # Instead of limited to 15, figure out how many fit based on f0 and
     # sampling rate and report this "4 harmonics" and list the strength of each
     for x in range(2, 15):
-        print('%.3f' % abs(f[i * x]), end=' ')
+        #print('%.3f' % abs(f[i * x]), end=' ')
+		print '%.3f ' % abs(f[i * x]),
 
     THD = sum([abs(f[i*x]) for x in range(2, 15)]) / abs(f[i])
     print('\nTHD: %f%%' % (THD * 100))
