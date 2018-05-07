@@ -1,4 +1,4 @@
-﻿from scipy.signal.windows import _cos_win
+﻿from scipy.signal.windows import general_cosine as _cos_win
 from scipy.fftpack import next_fast_len
 from numpy.fft import rfft, irfft
 from numpy import argmax, mean, log, concatenate, zeros
