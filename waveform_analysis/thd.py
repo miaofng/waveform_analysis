@@ -1,4 +1,6 @@
-﻿from scipy.signal.windows import general_cosine as _cos_win
+import scipy.signal
+if hasattr(scipy.signal.windows, "_cos_win"): from scipy.signal.windows import _cos_win
+else: from scipy.signal.windows import general_cosine as _cos_win
 from scipy.fftpack import next_fast_len
 from numpy.fft import rfft, irfft
 from numpy import argmax, mean, log, concatenate, zeros
@@ -48,7 +50,7 @@ def THDN(signal, fs, weight=None):
     calculated from the ratio of the entire signal before and after
     notch-filtering.
 
-    This notch-filters by nulling out the frequency coefficients ±10% of the
+    This notch-filters by nulling out the frequency coefficients 10% of the
     fundamental
 
     TODO: Make R vs F reference a parameter (currently is R)
@@ -78,7 +80,7 @@ def THDN(signal, fs, weight=None):
     true_i = parabolic(log(abs(f)), i)[0]
     frequency = fs * (true_i / len(windowed))
 
-    # Filter out fundamental by throwing away values ±10%
+    # Filter out fundamental by throwing away values 10%
     #lowermin = i - 10 #miaofng, according to window function
     lowermin = int(true_i * 0.9)
     #uppermin = i + 10 #miaofng, according to window function
