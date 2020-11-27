@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+#coding: utf8
 import scipy.signal
 if hasattr(scipy.signal.windows, "_cos_win"): from scipy.signal.windows import _cos_win
 else: from scipy.signal.windows import general_cosine as _cos_win
