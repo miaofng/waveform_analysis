@@ -77,7 +77,7 @@ def THDN(signal, fs, weight=None):
     total_rms = rms_flat(windowed)
 
     # Find the peak of the frequency spectrum (fundamental frequency)
-    f = rfft(windowed); figure(2); #plot(abs(f));show()
+    f = rfft(windowed); #figure(2); plot(abs(f));show()
     i = argmax(abs(f))
     true_i = parabolic(log(abs(f)), i)[0]
     frequency = fs * (true_i / len(windowed))
